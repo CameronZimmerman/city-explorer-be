@@ -1,6 +1,6 @@
 require('dotenv').config();
 const request = require('superagent');
-let mungeLocation = require('../lib/api-munge-utils.js');
+let mungeUtils = require('../lib/api-munge-utils.js');
 
 test('returns location data in a presentable form', async() => {
 
@@ -12,7 +12,7 @@ test('returns location data in a presentable form', async() => {
 
   const locationData = await request.get(`https://us1.locationiq.com/v1/search.php?key=${process.env.LOCATIONIQ_ACCESS_TOKEN}&q='portland'&format=json`);
 
-  let formattedLocation = mungeLocation(locationData.body[0]);
+  let formattedLocation = mungeUtils.mungeLocationData(locationData.body[0]);
 
   expect(formattedLocation).toEqual(expectation);
 });
