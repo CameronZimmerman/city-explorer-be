@@ -1,65 +1,18 @@
 require('dotenv').config();
+const request = require('superagent');
+let mungeLocation = require('../lib/api-munge-utils.js');
 
-const { execSync } = require('child_process');
+test('returns location data in a presentable form', async() => {
 
-const fakeRequest = require('supertest');
-const app = require('../lib/app');
-const client = require('../lib/client');
+  const expectation = {
+    formatted_query: 'Portland, Multnomah County, Oregon, USA',
+    latitude: '45.5202471',
+    longitude: '-122.6741949'
+  };
 
-describe('app routes', () => {
-  describe('routes', () => {
-    let token;
-  
-    beforeAll(async done => {
-      execSync('npm run setup-db');
-  
-      client.connect();
-  
-      const signInData = await fakeRequest(app)
-        .post('/auth/signup')
-        .send({
-          email: 'jon@user.com',
-          password: '1234'
-        });
-      
-      token = signInData.body.token; // eslint-disable-line
-  
-      return done();
-    });
-  
-    afterAll(done => {
-      return client.end(done);
-    });
+  const locationData = await request.get(`https://us1.locationiq.com/v1/search.php?key=${process.env.LOCATIONIQ_ACCESS_TOKEN}&q='portland'&format=json`);
 
-    test('returns animals', async() => {
+  let formattedLocation = mungeLocation(locationData.body[0]);
 
-      const expectation = [
-        {
-          'id': 1,
-          'name': 'bessie',
-          'coolfactor': 3,
-          'owner_id': 1
-        },
-        {
-          'id': 2,
-          'name': 'jumpy',
-          'coolfactor': 4,
-          'owner_id': 1
-        },
-        {
-          'id': 3,
-          'name': 'spot',
-          'coolfactor': 10,
-          'owner_id': 1
-        }
-      ];
-
-      const data = await fakeRequest(app)
-        .get('/animals')
-        .expect('Content-Type', /json/)
-        .expect(200);
-
-      expect(data.body).toEqual(expectation);
-    });
-  });
+  expect(formattedLocation).toEqual(expectation);
 });
