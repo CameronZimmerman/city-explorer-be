@@ -16,3 +16,16 @@ test('returns location data in a presentable form', async() => {
 
   expect(formattedLocation).toEqual(expectation);
 });
+
+test('returns weather data in a presentable form', async() => {
+
+  const weatherData = await request.get(`https://api.weatherbit.io/v2.0/forecast/daily?&lat=45.5202471&lon=-122.6741949&key=${process.env.WEATHER_BIT_API_KEY}`);
+
+  let formattedWeather = mungeUtils.mungeWeather(weatherData);
+
+  expect(formattedWeather).toEqual(expect.arrayContaining([expect.objectContaining({
+    forcast: expect.any(String),
+    time: expect(this.time.getTime()).not.toBeNan()
+
+  })]));
+});
