@@ -1,6 +1,6 @@
 require('dotenv').config();
 const request = require('superagent');
-let mungeUtils = require('../lib/api-munge-utils.js');
+const mungeUtils = require('../lib/api-munge-utils.js');
 
 test('returns location data in a presentable form', async() => {
 
