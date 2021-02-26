@@ -28,3 +28,21 @@ test('returns weather data in a presentable form', async() => {
   };
   expect(formattedWeather).toEqual(expect.arrayContaining([expect.objectContaining(expectedShape)]));
 });
+
+test('returns review data in a presentable form', async() => {
+
+  const reviewData = await request.get('https://api.yelp.com/v3/businesses/search?latitude=45.5202471&longitude=-122.6741949')
+    .set({ 'Authorization': `Bearer ${process.env.YELP_API_KEY}` })
+  ;
+
+  let formattedReviews = mungeUtils.mungeReviewData(reviewData);
+  let expectedShape =  {
+    'name': expect.any(String),
+    'image_url': expect.stringMatching(/\.(jpeg|jpg|gif|png)$/),
+    'price': expect.stringMatching(/\$/),
+    'rating': expect.stringContaining('.'),
+    'url': expect.stringContaining('https://www.yelp.com')
+  };
+  expect(formattedReviews).toEqual(expect.arrayContaining([expect.objectContaining(expectedShape)]));
+});
+
