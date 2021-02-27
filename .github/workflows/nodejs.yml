@@ -8,6 +8,10 @@ on:
 
 jobs:
   build:
+    env:
+      WEATHER_BIT_API_KEY: ${{ secrets.WEATHER_BIT_API_KEY }}
+      LOCATIONIQ_ACCESS_TOKEN: ${{ secrets.LOCATIONIQ_ACCESS_TOKEN }}
+      YELP_API_KEY: ${{ secrets.YELP_API_KEY }}
     runs-on: ubuntu-latest
     container: node:latest
     services:
@@ -15,9 +19,6 @@ jobs:
         image: postgres
         env:
           POSTGRES_PASSWORD: postgres
-          WEATHER_BIT_API_KEY: ${{ secrets.WEATHER_BIT_API_KEY }}
-          LOCATIONIQ_ACCESS_TOKEN: ${{ secrets.LOCATIONIQ_ACCESS_TOKEN }}
-          YELP_API_KEY: ${{ secrets.YELP_API_KEY }}
 
     steps:
     - uses: actions/checkout@v2
