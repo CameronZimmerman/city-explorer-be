@@ -1,65 +1,48 @@
 require('dotenv').config();
+const request = require('superagent');
+const mungeUtils = require('../lib/api-munge-utils.js');
 
-const { execSync } = require('child_process');
+test('returns location data in a presentable form', async() => {
 
-const fakeRequest = require('supertest');
-const app = require('../lib/app');
-const client = require('../lib/client');
+  const expectation = {
+    formatted_query: 'Portland, Multnomah, Oregon, USA',
+    latitude: '45.5202471',
+    longitude: '-122.6741949'
+  };
 
-describe('app routes', () => {
-  describe('routes', () => {
-    let token;
-  
-    beforeAll(async done => {
-      execSync('npm run setup-db');
-  
-      client.connect();
-  
-      const signInData = await fakeRequest(app)
-        .post('/auth/signup')
-        .send({
-          email: 'jon@user.com',
-          password: '1234'
-        });
-      
-      token = signInData.body.token; // eslint-disable-line
-  
-      return done();
-    });
-  
-    afterAll(done => {
-      return client.end(done);
-    });
+  const locationData = await request.get(`https://us1.locationiq.com/v1/search.php?key=${process.env.LOCATIONIQ_ACCESS_TOKEN}&q='portland'&format=json`);
 
-    test('returns animals', async() => {
+  let formattedLocation = mungeUtils.mungeLocationData(locationData);
 
-      const expectation = [
-        {
-          'id': 1,
-          'name': 'bessie',
-          'coolfactor': 3,
-          'owner_id': 1
-        },
-        {
-          'id': 2,
-          'name': 'jumpy',
-          'coolfactor': 4,
-          'owner_id': 1
-        },
-        {
-          'id': 3,
-          'name': 'spot',
-          'coolfactor': 10,
-          'owner_id': 1
-        }
-      ];
-
-      const data = await fakeRequest(app)
-        .get('/animals')
-        .expect('Content-Type', /json/)
-        .expect(200);
-
-      expect(data.body).toEqual(expectation);
-    });
-  });
+  expect(formattedLocation).toEqual(expectation);
 });
+
+test('returns weather data in a presentable form', async() => {
+
+  const weatherData = await request.get(`https://api.weatherbit.io/v2.0/forecast/daily?&lat=45.5202471&lon=-122.6741949&key=${process.env.WEATHER_BIT_API_KEY}`);
+
+  let formattedWeather = mungeUtils.mungeWeatherData(weatherData);
+  let expectedShape = {
+    'forecast': expect.any(String),
+    'time': expect.any(String)
+  };
+  expect(formattedWeather).toEqual(expect.arrayContaining([expect.objectContaining(expectedShape)]));
+});
+
+test('returns review data in a presentable form', async() => {
+
+  const reviewData = await request.get('https://api.yelp.com/v3/businesses/search?latitude=45.5202471&longitude=-122.6741949')
+    .set({ 'Authorization': `Bearer ${process.env.YELP_API_KEY}` })
+  ;
+
+  let formattedReviews = mungeUtils.mungeReviewData(reviewData);
+  let expectedShape =  {
+    'name': expect.any(String),
+    'image_url': expect.stringMatching(/\.(jpeg|jpg|gif|png)$/),
+    'price': expect.stringMatching(/\$/),
+    'rating': expect.stringContaining('.'),
+    'url': expect.stringContaining('https://www.yelp.com')
+  };
+  expect(formattedReviews).toEqual(expect.arrayContaining([expect.objectContaining(expectedShape)]));
+});
+
