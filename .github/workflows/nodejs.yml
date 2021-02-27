@@ -23,6 +23,7 @@ jobs:
     - uses: actions/checkout@v2
     - run: npm ci
     - run: npm test
+    - run: echo WEATHER_BIT_API_KEY
       env:
         CI: true
         DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
