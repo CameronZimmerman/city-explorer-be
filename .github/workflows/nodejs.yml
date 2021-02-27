@@ -1,8 +1,4 @@
 name: Node.js CI
-env: 
-    WEATHER_BIT_API_KEY: ${{ secrets.WEATHER_BIT_API_KEY }}
-    LOCATIONIQ_ACCESS_TOKEN: ${{ secrets.LOCATIONIQ_ACCESS_TOKEN }}
-    YELP_API_KEY: ${{ secrets.YELP_API_KEY }}
 
 on:
   push:
@@ -19,12 +15,13 @@ jobs:
         image: postgres
         env:
           POSTGRES_PASSWORD: postgres
+          WEATHER_BIT_API_KEY: ${{ secrets.WEATHER_BIT_API_KEY }}
+          LOCATIONIQ_ACCESS_TOKEN: ${{ secrets.LOCATIONIQ_ACCESS_TOKEN }}
+          YELP_API_KEY: ${{ secrets.YELP_API_KEY }}
+
     steps:
     - uses: actions/checkout@v2
     - run: npm ci
-    - run: echo "WEATHER_BIT_API_KEY=${{ secrets.WEATHER_BIT_API_KEY }}" >> $GITHUB_ENV
-    - run: echo "LOCATIONIQ_ACCESS_TOKEN=${{ secrets.LOCATIONIQ_ACCESS_TOKEN }}" >> $GITHUB_ENV
-    - run: echo "YELP_API_KEY=${{ secrets.WEATHER_API_KEY }}" >> $GITHUB_ENV
     - run: npm test
       env:
         CI: true
