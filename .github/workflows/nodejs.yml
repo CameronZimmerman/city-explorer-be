@@ -20,5 +20,8 @@ jobs:
     - run: npm ci
     - run: npm test
       env:
+        WEATHER_BIT_API_KEY: ${{ secrets.WEATHER_BIT_API_KEY }}
+        LOCATIONIQ_ACCESS_TOKEN: ${{ secrets.LOCATIONIQ_ACCESS_TOKEN }}
+        YELP_API_KEY: ${{ secrets.YELP_API_KEY }}
         CI: true
         DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
